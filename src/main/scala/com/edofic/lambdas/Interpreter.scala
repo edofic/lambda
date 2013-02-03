@@ -64,7 +64,16 @@ object Interpreter{
 }
 
 trait Scope{
+  this: Interpreter =>
+
   val objects = collection.mutable.Map[String,Any]()
+
+  private def mkFunc(name: String, body: String) =
+    objects(name) = run(Parser(body))
+
+  mkFunc("true", """\p.\q.p""")
+  mkFunc("false", """\p.\q.q""")
+  mkFunc("if", """\p.\q.\b.b p q""")
 }
 
 trait Natives extends Scope{
@@ -112,6 +121,10 @@ trait Natives extends Scope{
       s.asInstanceOf[Seq[Double]] reduce {_-_}
     else
       scala.sys.error("not all arguments are numbers")
+  )
+
+  mkProxied("eq", 2)(s=>
+    if(s(0)==s(1)) objects("true") else objects("false")
   )
 
   mkNativeFunc("seq")(s => s.last)
