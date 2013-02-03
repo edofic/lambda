@@ -30,6 +30,7 @@ object Repl {
       readLine("lambda> ") match {
         case "quit" => return
         case "help" => println(helpText)    
+        case "" => println()
         case line =>
           Try(interpreter run Parser(line)) match {
             case Success(result) => println(result)
