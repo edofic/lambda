@@ -7,9 +7,8 @@ import Interpreter._
  * Date: 2/3/13
  * Time: 10:09 AM
  */
-class Interpreter{
-  val objects = collection.mutable.Map[String,Any]()
-  objects.++=(Natives.nativeObjects)
+trait Interpreter{
+  this: Scope =>
 
   def mkLambda(anons: Seq[Identifier], body: AST): Func =
     func(Lambda(anons, body)){
@@ -64,15 +63,19 @@ object Interpreter{
   }
 }
 
-object Natives{
-  val nativeObjects = collection.mutable.Map[String,Any]()
+trait Scope{
+  val objects = collection.mutable.Map[String,Any]()
+}
+
+trait Natives extends Scope{
+  this: Interpreter =>
 
   private def mkNativeFunc(name: String)(f: Seq[Any] => Any) =
-    nativeObjects(name) = func(Value("native"))(f)
+    objects(name) = func(Value("native"))(f)
 
-  nativeObjects("number") = "number"
-  nativeObjects("string") = "string"
-  nativeObjects("run") = ""
+  objects("number") = "number"
+  objects("string") = "string"
+  objects("run") = ""
 
   mkNativeFunc("print")(s => println(s mkString " "))
 

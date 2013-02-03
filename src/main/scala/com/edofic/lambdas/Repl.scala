@@ -23,7 +23,7 @@ object Repl {
   |""".stripMargin
 
   def main(args: Array[String]) = {
-    val interpreter = new Interpreter
+    val interpreter = new Interpreter with Scope with Natives
     println("\nLambda REPL 0.1")
     println("""  "quit" to quit and "help" to get help""" + "\n")
     def step{
