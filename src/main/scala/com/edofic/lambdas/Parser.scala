@@ -10,8 +10,13 @@ import util.parsing.combinator.JavaTokenParsers
 object Parser extends JavaTokenParsers{
   override def skipWhitespace: Boolean = false
 
-  private lazy val value: Parser[Value] =
-    ((decimalNumber ^^ {_.toDouble}) | (stringLiteral)) ^^ Value.apply
+  private lazy val number: Parser[Value] =
+    decimalNumber ^^ (s => Value(s.toDouble))
+
+  private lazy val string: Parser[Value] =
+    stringLiteral ^^ (s => Value(s.substring(1,s.length-1)))
+
+  private lazy val value: Parser[Value] = number | string
 
   private lazy val id: Parser[Identifier] =
     ident ^^ Identifier.apply

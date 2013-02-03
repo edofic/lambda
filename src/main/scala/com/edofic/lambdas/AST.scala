@@ -32,6 +32,7 @@ object AST{
   }
 
   def prettyPrint(ast: AST): String = ast match {
+    case Value(value: String) => "\""+value+"\""
     case Value(value) => value.toString
     case Identifier(id) => id
     case Assignment(id, exp) => s"$id=${prettyPrint(exp)}"
