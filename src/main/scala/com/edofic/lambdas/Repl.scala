@@ -25,11 +25,11 @@ object Repl {
   def main(args: Array[String]) = {
     val interpreter = new Interpreter with Scope with Natives
     println("\nLambda REPL 0.1")
-    println("""  "quit" to quit and "help" to get help""" + "\n")
+    println("""  ":quit" to quit and ":help" to get help""" + "\n")
     def step{
       readLine("lambda> ") match {
-        case "quit" => return
-        case "help" => println(helpText)    
+        case ":quit" => return
+        case ":help" => println(helpText)
         case "" => println()
         case line =>
           Try(interpreter run Parser(line)) match {
