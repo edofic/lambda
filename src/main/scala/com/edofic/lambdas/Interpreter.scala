@@ -25,8 +25,12 @@ class Interpreter{
         val newBody = AST.modify(body)(partials)
         if(seq.length==anons.length)
           run(newBody)
-        else
-          mkLambda(anons.drop(seq.length), newBody)
+        else{
+          if (seq.length < anons.length)
+            mkLambda(anons.drop(seq.length), newBody)
+          else
+            run(Application(newBody, seq.drop(anons.length) map Value.apply))
+        }
       }
     }
 
