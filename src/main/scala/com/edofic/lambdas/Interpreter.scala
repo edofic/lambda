@@ -44,7 +44,7 @@ trait Interpreter{
 
     case Application(function, args) => run(function) match {
       case f: Func => f(args map run)
-      case other => scala.sys.error("runtime error. expected function, got $other")
+      case other => scala.sys.error(s"runtime error. expected function, got $other")
     }
   }
 
