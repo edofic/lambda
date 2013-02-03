@@ -3,7 +3,7 @@ Lambda REPL
 
 This is a simple lambda calculus REPL I created as an excercise. Theoreticaly it's Touring complete but there's not much you can to with it. And it's very sensitive to whitespace. Basially you can't add any(except newlines). 
 
-You get the classic Read-Eval-Print-Loop. For the sake of easier debugging the "print" part for lambdas prints out the AST. For conveniance you can fetch the assembled jar [lambda-0.1-SNAPSHOT.jar](http://edofic.github.com/lambda/lambda-0.1-SNAPSHOT.jar) (run with scala)
+You get the classic Read-Eval-Print-Loop. For the sake of easier debugging the "print" part for lambdas pretty prints out the AST. For conveniance you can fetch the assembled jar [lambda-0.1-SNAPSHOT.jar](http://edofic.github.com/lambda/lambda-0.1-SNAPSHOT.jar) (run with scala)
 
 Supported syntax
 ====

@@ -10,7 +10,7 @@ class Interpreter {
 
   trait Func extends (Seq[Any] => Any) {
     def ast: AST
-    override def toString(): String = "func: " + ast.toString
+    override def toString(): String = "func: " + AST.prettyPrint(ast)
   }
   def func(as: AST)(f: Seq[Any] => Any) = new Func {
     def apply(seq: Seq[Any]): Any = f(seq)

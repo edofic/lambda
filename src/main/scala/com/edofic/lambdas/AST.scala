@@ -30,5 +30,16 @@ object AST{
     }
     mod(ast)
   }
+
+  def prettyPrint(ast: AST): String = ast match {
+    case Value(value) => value.toString
+    case Identifier(id) => id
+    case Assignment(id, exp) => s"$id=${prettyPrint(exp)}"
+    case Application(f, args) => prettyPrint(f) + " " + args.map{
+      case a: Application => "("+prettyPrint(a)+")"
+      case other => prettyPrint(other)
+    }.mkString(" ")
+    case Lambda(anons, body) => anons.map(a=> "\\"+prettyPrint(a)).mkString(".") + "." + prettyPrint(body)
+  }
 }
 
