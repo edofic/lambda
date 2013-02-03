@@ -1,24 +1,15 @@
 package com.edofic.lambdas
 
+import Interpreter._
+
 /**
  * User: andraz
  * Date: 2/3/13
  * Time: 10:09 AM
  */
-class Interpreter {
+class Interpreter{
   val objects = collection.mutable.Map[String,Any]()
-
-  trait Func extends (Seq[Any] => Any) {
-    def ast: AST
-    override def toString(): String = "func: " + AST.prettyPrint(ast)
-  }
-  def func(as: AST)(f: Seq[Any] => Any) = new Func {
-    def apply(seq: Seq[Any]): Any = f(seq)
-
-    def ast: AST = as
-  }
-
-  objects("print") = func(Value("native"))(s => println(s mkString " "))
+  objects.++=(Natives.nativeObjects)
 
   def mkLambda(anons: Seq[Identifier], body: AST): Func =
     func(Lambda(anons, body)){
@@ -55,4 +46,56 @@ class Interpreter {
   }
 
   def run(exprs: Seq[AST]): Any = exprs.map(run).last
+}
+
+object Interpreter{
+  trait Func extends (Seq[Any] => Any) {
+    def ast: AST
+    override def toString(): String = "func: " + AST.prettyPrint(ast)
+  }
+  def func(as: AST)(f: Seq[Any] => Any) = new Func {
+    def apply(seq: Seq[Any]): Any = f(seq)
+
+    def ast: AST = as
+  }
+}
+
+object Natives{
+  val nativeObjects = collection.mutable.Map[String,Any]()
+
+  private def mkNativeFunc(name: String)(f: Seq[Any] => Any) =
+    nativeObjects(name) = func(Value("native"))(f)
+
+  nativeObjects("number") = "number"
+  nativeObjects("string") = "string"
+  nativeObjects("run") = ""
+
+  mkNativeFunc("print")(s => println(s mkString " "))
+
+  mkNativeFunc("read"){s =>
+    if(s.length != 1) sys.error("wrong number of arguments")
+    else {
+      s(0) match {
+        case "string" => readLine()
+        case "number" => readLine().toDouble
+        case other => sys.error(s"unknown type: $other")
+      }
+    }
+  }
+
+  mkNativeFunc("plus")(s =>
+    if(s.forall(_.isInstanceOf[Double]))
+      s.asInstanceOf[Seq[Double]] reduce {_+_}
+    else
+      s reduce {_.toString + _.toString}
+  )
+
+  mkNativeFunc("minus")(s =>
+    if(s.forall(_.isInstanceOf[Double]))
+      s.asInstanceOf[Seq[Double]] reduce {_-_}
+    else
+      scala.sys.error("not all arguments are numbers")
+  )
+
+  mkNativeFunc("seq")(s => s.last)
 }
