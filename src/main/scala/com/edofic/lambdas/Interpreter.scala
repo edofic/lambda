@@ -76,6 +76,13 @@ trait Natives extends Scope{
   private def mkFunc(name: String)(lambda: Lambda) =
     objects(name) = func(lambda)(mkLambda(lambda.anons, lambda.body))
 
+  private def mkProxied(name: String, nArgs: Int)(f: Seq[Any] => Any) = {
+    val args = (0 until nArgs) map (i => Identifier("a"+i))
+    val unsafe = name + "_unsafe"
+    mkNativeFunc(unsafe)(f)
+    mkFunc(name)(Lambda(args, Application(Identifier(unsafe),  args)))
+  }
+
   objects("number") = "number"
   objects("string") = "string"
   objects("run") = ""
@@ -109,8 +116,7 @@ trait Natives extends Scope{
 
   mkNativeFunc("seq")(s => s.last)
 
-  //repeater: non safe version as it doesn't consume arguments properly
-  mkNativeFunc("rep_unsafe")(s => {
+  mkProxied("rep", 1)(s => {
     val outer = Identifier("f")
     val inner = Identifier("g")
     def nestedApplication(n: Int, body: AST): AST =
@@ -122,14 +128,6 @@ trait Natives extends Scope{
     if(s.length!=1 && s(0).isInstanceOf[Double])
       sys.error("need exactly one argument and it should be a number")
     else
-        mkLambda(Seq(outer, inner), nestedApplication(s(0).asInstanceOf[Double].toInt, inner))
+      mkLambda(Seq(outer, inner), nestedApplication(s(0).asInstanceOf[Double].toInt, inner))
   })
-
-  //lambda expression proxy for repeater
-  mkFunc("rep")(
-    Lambda(
-      Seq(Identifier("n")),
-      Application(Identifier("rep_unsafe"),  Seq(Identifier("n")))
-    )
-  )
 }
