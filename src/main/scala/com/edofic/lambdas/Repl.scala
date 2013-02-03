@@ -33,7 +33,7 @@ object Repl {
         case line =>
           Try(interpreter run Parser(line)) match {
             case Success(result) => println(result)
-            case Failure(err) => println("ERROR\n$err\n")
+            case Failure(err) => println(s"ERROR\n$err\n")
           }
       }
       step
