@@ -13,21 +13,22 @@ trait Interpreter{
   def mkLambda(anons: Seq[Identifier], body: AST): Func =
     func(Lambda(anons, body)){
       seq => {
-        val partials = (anons zip seq) map {
-          case (id, value: AST) => {
+        val values = seq map {
+          case a: AST => a
+          case other => Value(other)
+        }
+        val modifier = (anons zip values) map {
+          case (id, value) => {
             case `id` => value
           }: PartialFunction[AST, AST]
-          case (id, value) => {
-            case `id` => Value(value)
-          }: PartialFunction[AST, AST]
         } reduce (_ orElse _)
-        val newBody = AST.modify(body)(partials)
-        if(seq.length==anons.length)
-          run(newBody)
-        else{
-          if (seq.length < anons.length)
+        val newBody = AST.modify(body)(modifier)
+        seq.length - anons.length match {
+          case 0 =>
+            run(newBody)
+          case x if x<0 => //too few args -> partial application
             mkLambda(anons.drop(seq.length), newBody)
-          else
+          case _ => //too much args. pass 'em on
             run(Application(newBody, seq.drop(anons.length) map Value.apply))
         }
       }
