@@ -68,4 +68,10 @@ class Integration extends FunSuite {
       |addOne=\x.plus 1 x
       |rep 20 addOne 0
     """.stripMargin, 20)
+
+  testProgram("recursion",
+    """
+      |count=\n.eq n 0 0 (count (minus n 1))
+      |count 20
+    """.stripMargin, 0)
 }

@@ -2,7 +2,14 @@ package com.edofic.lambdas
 
 sealed trait AST
 
-case class Value(value: Any) extends AST
+class Value(raw: => Any) extends AST {
+  lazy val value = raw
+}
+
+object Value{
+  def apply(raw: => Any) = new Value(raw)
+  def unapply(v: Value): Option[Any] = Some(v.value)
+}
 
 case class Identifier(id: String) extends AST
 

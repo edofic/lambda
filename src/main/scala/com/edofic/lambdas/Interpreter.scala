@@ -8,12 +8,12 @@ package com.edofic.lambdas
 trait Interpreter{
   this: Scope =>
 
-  trait Func extends (Seq[Any] => Any) {
+  trait Func extends (Seq[Value] => Any) {
     def ast: AST
     override def toString(): String = "func: " + AST.prettyPrint(ast)
   }
-  def func(as: AST)(f: Seq[Any] => Any) = new Func {
-    def apply(seq: Seq[Any]): Any = f(seq)
+  def func(as: AST)(f: Seq[Value] => Any) = new Func {
+    def apply(seq: Seq[Value]): Any = f(seq)
 
     def ast: AST = as
   }
@@ -21,11 +21,7 @@ trait Interpreter{
   def mkLambda(anons: Seq[Identifier], body: AST): Func =
     func(Lambda(anons, body)){
       seq => {
-        val values = seq map {
-          case a: AST => a
-          case other => Value(other)
-        }
-        val modifier = (anons zip values) map {
+        val modifier = (anons zip seq) map {
           case (id, value) => {
             case `id` => value
           }: PartialFunction[AST, AST]
@@ -37,7 +33,7 @@ trait Interpreter{
           case x if x<0 => //too few args -> partial application
             mkLambda(anons.drop(seq.length), newBody)
           case _ => //too much args. pass 'em on
-            run(Application(newBody, seq.drop(anons.length) map Value.apply))
+            run(Application(newBody, seq.drop(anons.length)))
         }
       }
     }
@@ -52,7 +48,7 @@ trait Interpreter{
     case Lambda(anons, body) => mkLambda(anons, body)
 
     case Application(function, args) => run(function) match {
-      case f: Func => f(args map run)
+      case f: Func => f(args map {arg => Value(run(arg))})
       case other => scala.sys.error(s"runtime error. expected function, got $other")
     }
   }
@@ -77,16 +73,13 @@ trait Natives extends Scope{
   this: Interpreter =>
 
   private def mkNativeFunc(name: String)(f: Seq[Any] => Any) =
-    objects(name) = func(Value("native"))(f)
+    objects(name) = func(Value("native"))(seq => f(seq map run))
 
-  private def mkFunc(name: String)(lambda: Lambda) =
-    objects(name) = func(lambda)(mkLambda(lambda.anons, lambda.body))
-
-  private def mkProxied(name: String, nArgs: Int)(f: Seq[Any] => Any) = {
+  private def mkProxied(name: String, nArgs: Int)(f: Seq[Any] => Any){
     val args = (0 until nArgs) map (i => Identifier("a"+i))
     val unsafe = name + "_unsafe"
     mkNativeFunc(unsafe)(f)
-    mkFunc(name)(Lambda(args, Application(Identifier(unsafe),  args)))
+    objects(name) = mkLambda(args,  Application(Identifier(unsafe),  args))
   }
 
   objects("number") = "number"
