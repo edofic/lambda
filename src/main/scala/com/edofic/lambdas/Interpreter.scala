@@ -1,7 +1,5 @@
 package com.edofic.lambdas
 
-import Interpreter._
-
 /**
  * User: andraz
  * Date: 2/3/13
@@ -9,6 +7,16 @@ import Interpreter._
  */
 trait Interpreter{
   this: Scope =>
+
+  trait Func extends (Seq[Any] => Any) {
+    def ast: AST
+    override def toString(): String = "func: " + AST.prettyPrint(ast)
+  }
+  def func(as: AST)(f: Seq[Any] => Any) = new Func {
+    def apply(seq: Seq[Any]): Any = f(seq)
+
+    def ast: AST = as
+  }
 
   def mkLambda(anons: Seq[Identifier], body: AST): Func =
     func(Lambda(anons, body)){
@@ -50,18 +58,6 @@ trait Interpreter{
   }
 
   def run(exprs: Seq[AST]): Any = exprs.map(run).last
-}
-
-object Interpreter{
-  trait Func extends (Seq[Any] => Any) {
-    def ast: AST
-    override def toString(): String = "func: " + AST.prettyPrint(ast)
-  }
-  def func(as: AST)(f: Seq[Any] => Any) = new Func {
-    def apply(seq: Seq[Any]): Any = f(seq)
-
-    def ast: AST = as
-  }
 }
 
 trait Scope{
