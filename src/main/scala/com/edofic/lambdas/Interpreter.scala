@@ -117,6 +117,18 @@ trait Natives extends Scope{
     if(s(0)==s(1)) objects("true") else objects("false")
   )
 
+  mkProxied("ne", 2)(s =>
+    if(s(0)!=s(1)) objects("true") else objects("false")
+  )
+
+  mkProxied("lt", 2)(s =>
+    if(s(0).asInstanceOf[Double] < s(1).asInstanceOf[Double]) objects("true") else objects("false")
+  )
+
+  mkProxied("gt", 2)(s =>
+    if(s(0).asInstanceOf[Double] > s(1).asInstanceOf[Double]) objects("true") else objects("false")
+  )
+
   mkNativeFunc("seq")(s => s.last)
 
   mkProxied("rep", 1)(s => {

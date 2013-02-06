@@ -61,7 +61,13 @@ class Integration extends FunSuite {
 
   testProgram("native minus", "minus 6 2 3", 1)
 
-  testProgram("native eq", "eq 1 2 1 0", 0)
+  testProgram("native eq", "plus (eq 1 1 1 0) (eq 1 2 0 1)", 2)
+
+  testProgram("native ne", "plus (ne 1 1 1 0) (ne 1 2 0 1)", 0)
+
+  testProgram("native lt", "plus (lt 1 2 1 0) (lt 2 1 0 1)", 2)
+
+  testProgram("native gt", "plus (gt 1 2 1 0) (gt 2 1 0 1)", 0)
 
   testProgram("native rep",
     """
