@@ -26,10 +26,32 @@ class Integration extends FunSuite {
       |meaning
     """.stripMargin, 42)
 
-  testProgram("application through native plus",
+  testProgram("application", "true 1 2", 1)
+
+  testProgram("partial application",
     """
-      |plus 1 2
-    """.stripMargin, 3)
+      |one=true 1
+      |one 2
+    """.stripMargin, 1)
+
+  testProgram("lambdas returning lambdas",
+    """
+      |t=\x.true x
+      |t 1 2
+    """.stripMargin, 1)
+
+  testProgram("comments",
+    """
+      |//no code
+      |1 //a one
+    """.stripMargin, 1)
+
+  testProgram("true false if",
+    """
+      |if 1 2 (true false true)
+    """.stripMargin, 2)
+
+  testProgram("native plus", "plus 1 2 3", 6)
 
   testProgram("two parameter lambda proxy for plus",
     """
@@ -37,23 +59,13 @@ class Integration extends FunSuite {
       |add 1 2
     """.stripMargin, 3)
 
-  testProgram("partial application",
-    """
-      |add=\x.\y.plus x y
-      |addOne=add 1
-      |addOne 2
-    """.stripMargin, 3)
+  testProgram("native minus", "minus 6 2 3", 1)
 
-  testProgram("lambdas returning lambdas",
-    """
-      |add=\x.\y.plus x y
-      |ax=\x.add x
-      |ax 1 2
-    """.stripMargin, 3)
+  testProgram("native eq", "eq 1 2 1 0", 0)
 
-  testProgram("comments",
+  testProgram("native rep",
     """
-      |//no code
-      |1 //a one
-    """.stripMargin, 1)
+      |addOne=\x.plus 1 x
+      |rep 20 addOne 0
+    """.stripMargin, 20)
 }
