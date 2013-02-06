@@ -80,4 +80,10 @@ class Integration extends FunSuite {
       |count=\n.eq n 0 0 (count (minus n 1))
       |count 20
     """.stripMargin, 0)
+
+  testProgram("fibonacci numbers",
+    """
+      |fibonacci=\n.lt n 2 1 (plus (fibonacci (minus n 1)) (fibonacci (minus n 2)))
+      |fibonacci 10
+    """.stripMargin, 89)
 }
