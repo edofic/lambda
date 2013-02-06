@@ -40,14 +40,19 @@ object Parser extends JavaTokenParsers{
     }
 
   private lazy val expr: Parser[AST] =
-    " *".r ~> (value | assignement | application | id | lambda) <~ " *".r
+    value | assignement | application | id | lambda
+
+  private lazy val line: Parser[Option[AST]] =
+    " *".r ~> opt(expr) <~ " *(//.*)?".r
 
   def apply(input: String): Seq[AST] = {
-    for {
+    val asts = for {
       raw <- input.split('\n')
-      line = raw.trim
-      if !line.isEmpty
-    } yield parseAll(expr, line.trim) match {
+      ln = raw.trim
+      if !ln.isEmpty
+    } yield parseAll(line, ln)
+
+    asts flatMap {
       case Success(result, _) => result
       case failure: NoSuccess => scala.sys.error(failure.msg)
     }

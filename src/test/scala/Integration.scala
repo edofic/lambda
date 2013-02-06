@@ -50,4 +50,10 @@ class Integration extends FunSuite {
       |ax=\x.add x
       |ax 1 2
     """.stripMargin, 3)
+
+  testProgram("comments",
+    """
+      |//no code
+      |1 //a one
+    """.stripMargin, 1)
 }
